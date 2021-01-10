@@ -19,6 +19,18 @@ function App() {
 
     const addData = data => {
         info.push({ task: data.task, time: data.time });
+        chrome.storage.sync.set(
+            {
+                info: info
+            })
+        chrome.storage.sync.get(
+            {
+                info: 0,
+            },
+            ({ info }) => {
+                console.log(info)
+            }
+        )
     }
 
     function changeContent(setPage, page) {
@@ -42,15 +54,16 @@ function App() {
         console.log("LOAD")
         chrome.storage.sync.get(
             {
-                page: "check",
+                page: "error",
+                info: []
             },
-            ({ page }) => {
+            ({ page, info }) => {
                 setPage(parseInt(page))
+                setInfo(info)
             }
         );
     }
 
-    console.log("OUTBOUNDS: " + page)
     var content = "Error, content could not be found. Please try again later.";
     if (page === HOME) {
         content = (
