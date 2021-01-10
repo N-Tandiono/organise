@@ -18,6 +18,7 @@
     },
     "permissions": [
         "storage",
-        "<all urls>"
+        "tabs",
+        "<all_urls>"
     ]
 }

@@ -1,13 +1,56 @@
 /*global chrome*/
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import './App.css';
 
 export const HOME = 0;
 export const TIMETABLE = 1;
-export const RANDOM = 2;
+export const BLOCK = 2;
+export const SETTINGS = 3;
+
+function TimetableSlot(props) {
+    return <h1>{props.task} | {props.time}</h1>
+}
 
 function App() {
+    const { register, handleSubmit } = useForm();
     const [page, setPage] = useState(TIMETABLE);
+    const [info, setInfo] = useState([]);
+
+    const addData = data => {
+        info.push({ task: data.task, time: data.time });
+    }
+
+    function changeContent(setPage, page) {
+        console.log(page)
+        chrome.storage.sync.set(
+            {
+                page: page
+            })
+        chrome.storage.sync.get(
+            {
+                page: 0,
+            },
+            ({ page }) => {
+                console.log(page)
+            }
+        )
+        setPage(page);
+    }
+
+    window.onload = function () {
+        console.log("LOAD")
+        chrome.storage.sync.get(
+            {
+                page: "check",
+            },
+            ({ page }) => {
+                setPage(parseInt(page))
+            }
+        );
+    }
+
+    console.log("OUTBOUNDS: " + page)
     var content = "Error, content could not be found. Please try again later.";
     if (page === HOME) {
         content = (
@@ -16,21 +59,45 @@ function App() {
             </>
         );
     } else if (page === TIMETABLE) {
+        const current_timetable = [];
+        for (const [_, data] of info.entries()) {
+            current_timetable.push(
+                <TimetableSlot task={data.task} time={data.time} />
+            )
+        }
         content = (
             <>
+                {current_timetable}
+                <form onSubmit={handleSubmit(addData)}>
+                    <label>Task</label>
+                    <input ref={register} name="task" />
+                    <label>Time</label>
+                    <input ref={register} name="time" />
+                    <button>Submit</button>
+                </form>
                 <h1>TIMETABLE</h1>
             </>
         );
-    } else if (page === RANDOM) {
+    } else if (page === BLOCK) {
         content = (
             <>
-                <h1>RANDOM</h1>
+                <h1>BLOCK</h1>
+            </>
+        );
+    } else if (page === SETTINGS) {
+        content = (
+            <>
+                <h1>SETTINGS</h1>
             </>
         );
     }
     return (
         <div className='App'>
             <h1>organise</h1>
+            <button onClick={() => changeContent(setPage, HOME)}>Home</button>
+            <button onClick={() => changeContent(setPage, TIMETABLE)}>Timetable</button>
+            <button onClick={() => changeContent(setPage, BLOCK)}>Block</button>
+            <button onClick={() => changeContent(setPage, SETTINGS)}>Settings</button>
             {content}
         </div>
     );
