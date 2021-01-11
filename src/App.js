@@ -2,6 +2,7 @@
 import { React, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import './App.css';
+import Popup from 'reactjs-popup';
 
 export const HOME = 0;
 export const TIMETABLE = 1;
@@ -80,15 +81,26 @@ function App() {
         }
         content = (
             <>
-                {current_timetable}
-                <form onSubmit={handleSubmit(addData)}>
-                    <label>Task</label>
-                    <input ref={register} name="task" />
-                    <label>Time</label>
-                    <input ref={register} name="time" />
-                    <button>Submit</button>
-                </form>
                 <h1>TIMETABLE</h1>
+                <Popup trigger={<button className="button"> + </button>} modal nested>
+                    {close => (
+                        <div className="timetable-form">
+                            <button className="close" onClick={close}>&times;</button>
+                            <div className="title"> Add Event </div>
+                            <div className="content">
+                                <form onSubmit={handleSubmit(addData)}>
+                                    <label>Task</label>
+                                    <input ref={register} name="task" />
+                                    <br />
+                                    <label>Time</label>
+                                    <input ref={register} name="time" />
+                                    <button>Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </Popup>
+                { current_timetable}
             </>
         );
     } else if (page === BLOCK) {
