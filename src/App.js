@@ -9,16 +9,26 @@ export const TIMETABLE = 1;
 export const BLOCK = 2;
 export const SETTINGS = 3;
 
-function TimetableSlot(props) {
-    return <h1>{props.task} | {props.time}</h1>
-}
-
 function App() {
     const { register, handleSubmit } = useForm();
     const [page, setPage] = useState(TIMETABLE);
     const [info, setInfo] = useState([]);
+    const current_timetable = [];
 
-    const addData = data => {
+    function closeSlot(task, time) {
+        // TODO
+    }
+
+    function TimetableSlot(props) {
+
+        return (
+            <>
+                <h1>{props.task} | {props.time} | Time <button onClick={() => closeSlot(props.task, props.time)}>Close</button ></h1>
+            </>
+        )
+    }
+
+    const addDataTimetable = data => {
         info.push({ task: data.task, time: data.time });
         chrome.storage.sync.set(
             {
@@ -73,7 +83,6 @@ function App() {
             </>
         );
     } else if (page === TIMETABLE) {
-        const current_timetable = [];
         for (const [_, data] of info.entries()) {
             current_timetable.push(
                 <TimetableSlot task={data.task} time={data.time} />
@@ -85,10 +94,10 @@ function App() {
                 <Popup trigger={<button className="button"> + </button>} modal nested>
                     {close => (
                         <div className="timetable-form">
-                            <button className="close" onClick={close}>&times;</button>
-                            <div className="title"> Add Event </div>
-                            <div className="content">
-                                <form onSubmit={handleSubmit(addData)}>
+                            <button className="timetable-form-close" onClick={close}>&times;</button>
+                            <div className="timetable-form-title"> Add Event </div>
+                            <div className="timetable-form-content">
+                                <form onSubmit={handleSubmit(addDataTimetable)}>
                                     <label>Task</label>
                                     <input ref={register} name="task" />
                                     <br />
@@ -118,12 +127,18 @@ function App() {
     }
     return (
         <div className='App'>
-            <h1>organise</h1>
-            <button onClick={() => changeContent(setPage, HOME)}>Home</button>
-            <button onClick={() => changeContent(setPage, TIMETABLE)}>Timetable</button>
-            <button onClick={() => changeContent(setPage, BLOCK)}>Block</button>
-            <button onClick={() => changeContent(setPage, SETTINGS)}>Settings</button>
-            {content}
+            <div className="navigation">
+                <button onClick={() => changeContent(setPage, HOME)}>Home</button>
+                <button onClick={() => changeContent(setPage, TIMETABLE)}>Timetable</button>
+                <button onClick={() => changeContent(setPage, BLOCK)}>Block</button>
+                <button onClick={() => changeContent(setPage, SETTINGS)}>Settings</button>
+            </div>
+            <div className="main-container">
+                <div className="title">
+                    <h1>organise</h1>
+                </div>
+                {content}
+            </div>
         </div>
     );
 };

@@ -1,11 +1,42 @@
+* {
+  margin: 0;
+}
+
 .App {
   height: 300px;
   width: 600px;
+  background-color: rgba(39, 38, 38, 0.815);
+}
+
+.title {
+  position: block;
+  height: 30px;
+  width: 100%;
+  text-align: center;
+  background-color: rgba(39, 38, 38, 0.815);
+  padding: 20px;
+  color: white;
+}
+
+.navigation {
+  position: block;
+  width: 80px;
+  height: 100%;
+  float: left;
+  background-color: rgba(4, 10, 26, 0.637);
+}
+
+.main-container {
+  float: right;
+  position: block;
+  height: 100%;
+  width: 520px;
+  background-color: white;
 }
 
 .timetable-form {
   padding: 30px;
   height: 100px;
   width: 300px;
-  background-color: rgba(255, 255, 255, 0.596);
+  background-color: rgba(121, 121, 121, 0.685);
 }
