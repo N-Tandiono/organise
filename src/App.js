@@ -38,7 +38,7 @@ function App() {
 
     function closeTodoSlot(task, priority) {
         let newArray = todoList
-        newArray = todoList.filter(ele => ele.task !== task && ele.priority !== priority)
+        newArray = todoList.filter(ele => ele.task !== task)
         chrome.storage.sync.set(
             {
                 info: newArray
@@ -57,22 +57,45 @@ function App() {
     function TimetableSlot(props) {
         return (
             <>
-                <h1>{props.task} | {props.time} | Time <button onClick={() => closeTimetableSlot(props.task, props.time)}>Close</button ></h1>
+                <div className="timetableSlot">
+                    <table>
+                        <tr>
+                            <td className="taskTable">{props.task}</td>
+                            <td className="dayTable">{props.day}</td>
+                            <td>{props.time}<button className="deleteEntry" onClick={() => closeTimetableSlot(props.task, props.time)}> &#10005; </button ></td>
+                        </tr>
+                    </table>
+                </div>
             </>
         )
     }
 
     function TodoSlot(props) {
         console.log(props)
+        let colour = 'black';
+        if (props.priority === "3") {
+            colour = 'green'
+        }
+        else if (props.priority === "2") {
+            colour = 'yellow'
+        }
+        else if (props.priority === "1") {
+            colour = 'red'
+        }
         return (
             <>
-                <h1>{props.task} | {props.priority} <button onClick={() => closeTodoSlot(props.task, props.priority)}>Close</button ></h1>
+                <table>
+                    <tr>
+                        <td className="taskTodoTable">{props.task}</td>
+                        <td className="priorityTable" style={{ 'background-color': colour }}><button className="deleteEntry" onClick={() => closeTodoSlot(props.task, props.priority)}> &#10005; </button ></td>
+                    </tr>
+                </table>
             </>
         )
     }
 
     const addDataTimetable = data => {
-        info.push({ task: data.task, time: data.time });
+        info.push({ task: data.task, day: data.day, time: data.time });
         chrome.storage.sync.set(
             {
                 info: info
@@ -89,6 +112,9 @@ function App() {
 
     const addTodo = data => {
         todoList.push({ task: data.task, priority: data.priority });
+
+        todoList.sort(compare);
+
         chrome.storage.sync.set(
             {
                 todo: todoList
@@ -125,11 +151,13 @@ function App() {
         chrome.storage.sync.get(
             {
                 page: "error",
-                info: []
+                info: [],
+                todo: []
             },
-            ({ page, info }) => {
+            ({ page, info, todo }) => {
                 setPage(parseInt(page))
                 setInfo(info)
+                setTodoList(todo)
             }
         );
     }
@@ -137,9 +165,9 @@ function App() {
     var content = "Error, content could not be found. Please try again later.";
     if (page === HOME) {
         content = (
-            <>
-                <h1>HOME</h1>
-            </>
+            <div className="title">
+                <h1>organise</h1>
+            </div>
         );
     } else if (page === TODO) {
         console.log(todoList)
@@ -150,22 +178,24 @@ function App() {
         }
         content = (
             <>
-                <h1>To Do</h1>
+                <div className="title">
+                    <h1>organise - To Do</h1>
+                </div>
                 <Popup trigger={<button className="button"> + </button>} modal nested>
                     {close => (
                         <div className="todo-form">
-                            <button className="todo-form-close" onClick={close}>&times;</button>
-                            <div className="todo-form-title"> Add Event </div>
+                            <button className="form-close" onClick={close}>&times;</button>
+                            <div className="todo-form-title"><b>Add Task</b></div>
                             <div className="todo-form-content">
                                 <form onSubmit={handleSubmit(addTodo)}>
-                                    <label>Task</label>
+                                    <label>Task&nbsp;</label>
                                     <input ref={register} name="task" />
                                     <br />
-                                    <label>Time</label>
+                                    <label>Priority&nbsp;</label>
                                     <select name="priority" ref={register}>
-                                        <option value="low">Low</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="high">High</option>
+                                        <option value="3">Low</option>
+                                        <option value="2">Medium</option>
+                                        <option value="1">High</option>
                                     </select>
                                     <button>Submit</button>
                                 </form>
@@ -173,49 +203,72 @@ function App() {
                         </div>
                     )}
                 </Popup>
-                {current_todo}
+                <div className="scrolling-container">
+                    <table>
+                        <th className="taskTodoTable">Task</th>
+                        <th>Priority</th>
+                    </table>
+                    {current_todo}
+                </div>
             </>
         );
     } else if (page === TIMETABLE) {
         for (const [_, data] of info.entries()) {
             current_timetable.push(
-                <TimetableSlot task={data.task} time={data.time} />
+                <TimetableSlot task={data.task} day={data.day} time={data.time} />
             )
         }
         content = (
             <>
-                <h1>TIMETABLE</h1>
-                <Popup trigger={<button className="button"> + </button>} modal nested>
+                <div className="title">
+                    <h1>organise - TimeTable</h1>
+                </div>
+                <Popup trigger={<button className="button">+</button>} modal nested>
                     {close => (
                         <div className="timetable-form">
-                            <button className="timetable-form-close" onClick={close}>&times;</button>
-                            <div className="timetable-form-title"> Add Event </div>
+                            <button className="form-close" onClick={close}>&times;</button>
+                            <div className="timetable-form-title"><b>Add Event</b></div>
                             <div className="timetable-form-content">
                                 <form onSubmit={handleSubmit(addDataTimetable)}>
-                                    <label>Task</label>
+                                    <label>Task&nbsp;&nbsp;</label>
                                     <input ref={register} name="task" />
                                     <br />
-                                    <label>Time</label>
+                                    <label>Day&nbsp;&nbsp;&nbsp;</label>
+                                    <input ref={register} name="day" />
+                                    <br />
+                                    <label>Time&nbsp;</label>
                                     <input ref={register} name="time" />
+                                    <br />
                                     <button>Submit</button>
                                 </form>
                             </div>
                         </div>
                     )}
                 </Popup>
-                {current_timetable}
+                <div className="scrolling-container">
+                    <table>
+                        <th className="taskTable">Event</th>
+                        <th className="dayTable">Day</th>
+                        <th>Time</th>
+                    </table>
+                    {current_timetable}
+                </div>
             </>
         );
     } else if (page === BLOCK) {
         content = (
             <>
-                <h1>BLOCK</h1>
+                <div className="title">
+                    <h1>organise - Block</h1>
+                </div>
             </>
         );
     } else if (page === SETTINGS) {
         content = (
             <>
-                <h1>SETTINGS</h1>
+                <div className="title">
+                    <h1>organise - Settings</h1>
+                </div>
             </>
         );
     }
@@ -229,13 +282,22 @@ function App() {
                 <button onClick={() => changeContent(setPage, SETTINGS)}>Settings</button>
             </div>
             <div className="main-container">
-                <div className="title">
-                    <h1>organise</h1>
-                </div>
                 {content}
             </div>
         </div>
     );
 };
+
+function compare(a, b) {
+    const compareA = a.priority.toUpperCase();
+    const compareB = b.priority.toUpperCase();
+    let comparison = 0;
+    if (compareA > compareB) {
+        comparison = 1;
+    } else if (compareA < compareB) {
+        comparison = -1;
+    }
+    return comparison;
+}
 
 export default App;

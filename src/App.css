@@ -5,45 +5,85 @@
 .App {
   height: 300px;
   width: 600px;
-  background-color: rgba(39, 38, 38, 0.815);
+  background-color:white;
 }
 
 .title {
   position: block;
   height: 30px;
-  width: 480px;
+  width: 450px;
   text-align: center;
-  background-color: rgba(39, 38, 38, 0.815);
+  background-color: white;
   padding: 20px;
-  color: white;
 }
 
 .navigation {
   position: block;
-  width: 80px;
+  width: 78px;
   height: 100%;
   float: left;
-  background-color: rgba(4, 10, 26, 0.637);
+  background-color: white;
+  border: 1px solid black;
+  text-align: center;
 }
 
 .main-container {
   float: right;
   position: block;
   height: 100%;
-  width: 520px;
+  width: 518px;
   background-color: white;
+  border: 1px solid black;
 }
 
 .timetable-form {
-  padding: 30px;
+  padding: 45px 50px 45px 50px;
   height: 100px;
   width: 300px;
   background-color: rgba(121, 121, 121, 0.685);
 }
 
-.timetable-form {
-  padding: 30px;
+.todo-form {
+  padding: 25px 50px 15px 50px;
   height: 100px;
   width: 300px;
-  background-color: rgba(255, 255, 255, 0.596);
+  background-color: rgba(121, 121, 121, 0.685);
+}
+
+.scrolling-container {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 52%;
+  background-color: rgb(255, 255, 255);
+  overflow: auto;
+  color: black;
+}
+
+.button, .deleteEntry {
+  float: right;
+}
+
+.form-close {
+  float: right;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+td, th {
+  border: 1px solid black;
+}
+
+.taskTable {
+  width: 180px;
+}
+
+.dayTable {
+  width: 80px;
+}
+
+.taskTodoTable {
+  width: 360px;
 }
