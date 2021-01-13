@@ -5,25 +5,68 @@ import './App.css';
 import Popup from 'reactjs-popup';
 
 export const HOME = 0;
-export const TIMETABLE = 1;
-export const BLOCK = 2;
-export const SETTINGS = 3;
+export const TODO = 1;
+export const TIMETABLE = 2;
+export const BLOCK = 3;
+export const SETTINGS = 4;
 
 function App() {
     const { register, handleSubmit } = useForm();
     const [page, setPage] = useState(TIMETABLE);
     const [info, setInfo] = useState([]);
+    const [todoList, setTodoList] = useState([])
     const current_timetable = [];
+    const current_todo = [];
 
-    function closeSlot(task, time) {
-        // TODO
+    function closeTimetableSlot(task, time) {
+        let newArray = info
+        newArray = info.filter(ele => ele.task !== task && ele.time !== time)
+        chrome.storage.sync.set(
+            {
+                info: newArray
+            })
+        chrome.storage.sync.get(
+            {
+                info: 0,
+            },
+            ({ info }) => {
+                console.log(info)
+            }
+        )
+        setInfo(newArray)
+    }
+
+    function closeTodoSlot(task, priority) {
+        let newArray = todoList
+        newArray = todoList.filter(ele => ele.task !== task && ele.priority !== priority)
+        chrome.storage.sync.set(
+            {
+                info: newArray
+            })
+        chrome.storage.sync.get(
+            {
+                info: 0,
+            },
+            ({ info }) => {
+                console.log(info)
+            }
+        )
+        setTodoList(newArray)
     }
 
     function TimetableSlot(props) {
-
         return (
             <>
-                <h1>{props.task} | {props.time} | Time <button onClick={() => closeSlot(props.task, props.time)}>Close</button ></h1>
+                <h1>{props.task} | {props.time} | Time <button onClick={() => closeTimetableSlot(props.task, props.time)}>Close</button ></h1>
+            </>
+        )
+    }
+
+    function TodoSlot(props) {
+        console.log(props)
+        return (
+            <>
+                <h1>{props.task} | {props.priority} <button onClick={() => closeTodoSlot(props.task, props.priority)}>Close</button ></h1>
             </>
         )
     }
@@ -36,10 +79,26 @@ function App() {
             })
         chrome.storage.sync.get(
             {
-                info: 0,
+                info: [],
             },
             ({ info }) => {
                 console.log(info)
+            }
+        )
+    }
+
+    const addTodo = data => {
+        todoList.push({ task: data.task, priority: data.priority });
+        chrome.storage.sync.set(
+            {
+                todo: todoList
+            })
+        chrome.storage.sync.get(
+            {
+                todo: [],
+            },
+            ({ todo }) => {
+                console.log(todo)
             }
         )
     }
@@ -82,6 +141,41 @@ function App() {
                 <h1>HOME</h1>
             </>
         );
+    } else if (page === TODO) {
+        console.log(todoList)
+        for (const [_, data] of todoList.entries()) {
+            current_todo.push(
+                <TodoSlot task={data.task} priority={data.priority} />
+            )
+        }
+        content = (
+            <>
+                <h1>To Do</h1>
+                <Popup trigger={<button className="button"> + </button>} modal nested>
+                    {close => (
+                        <div className="todo-form">
+                            <button className="todo-form-close" onClick={close}>&times;</button>
+                            <div className="todo-form-title"> Add Event </div>
+                            <div className="todo-form-content">
+                                <form onSubmit={handleSubmit(addTodo)}>
+                                    <label>Task</label>
+                                    <input ref={register} name="task" />
+                                    <br />
+                                    <label>Time</label>
+                                    <select name="priority" ref={register}>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                    <button>Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </Popup>
+                {current_todo}
+            </>
+        );
     } else if (page === TIMETABLE) {
         for (const [_, data] of info.entries()) {
             current_timetable.push(
@@ -109,7 +203,7 @@ function App() {
                         </div>
                     )}
                 </Popup>
-                { current_timetable}
+                {current_timetable}
             </>
         );
     } else if (page === BLOCK) {
@@ -129,6 +223,7 @@ function App() {
         <div className='App'>
             <div className="navigation">
                 <button onClick={() => changeContent(setPage, HOME)}>Home</button>
+                <button onClick={() => changeContent(setPage, TODO)}>To Do</button>
                 <button onClick={() => changeContent(setPage, TIMETABLE)}>Timetable</button>
                 <button onClick={() => changeContent(setPage, BLOCK)}>Block</button>
                 <button onClick={() => changeContent(setPage, SETTINGS)}>Settings</button>
