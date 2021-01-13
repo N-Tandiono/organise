@@ -15,6 +15,7 @@ function App() {
     const [page, setPage] = useState(TIMETABLE);
     const [info, setInfo] = useState([]);
     const [todoList, setTodoList] = useState([])
+    const [todoListCounter, setTodoListCounter] = useState(0)
     const current_timetable = [];
     const current_todo = [];
 
@@ -36,19 +37,21 @@ function App() {
         setInfo(newArray)
     }
 
-    function closeTodoSlot(task, priority) {
+    function closeTodoSlot(u_id) {
+        console.log("CURRENT:" + u_id)
+        console.log("TEST " + todoList)
         let newArray = todoList
-        newArray = todoList.filter(ele => ele.task !== task)
+        newArray = todoList.filter(ele => ele.u_id !== u_id)
         chrome.storage.sync.set(
             {
-                info: newArray
+                todo: newArray
             })
         chrome.storage.sync.get(
             {
-                info: 0,
+                todo: 0,
             },
-            ({ info }) => {
-                console.log(info)
+            ({ todo }) => {
+                console.log("Updated is: " + todo)
             }
         )
         setTodoList(newArray)
@@ -87,7 +90,7 @@ function App() {
                 <table>
                     <tr>
                         <td className="taskTodoTable">{props.task}</td>
-                        <td className="priorityTable" style={{ 'background-color': colour }}><button className="deleteEntry" onClick={() => closeTodoSlot(props.task, props.priority)}> &#10005; </button ></td>
+                        <td className="priorityTable" style={{ 'background-color': colour }}><button className="deleteEntry" onClick={() => closeTodoSlot(props.u_id)}> &#10005; </button ></td>
                     </tr>
                 </table>
             </>
@@ -111,20 +114,23 @@ function App() {
     }
 
     const addTodo = data => {
-        todoList.push({ task: data.task, priority: data.priority });
-
+        todoList.push({ u_id: todoListCounter, task: data.task, priority: data.priority });
+        setTodoListCounter(todoListCounter + 1)
         todoList.sort(compare);
 
         chrome.storage.sync.set(
             {
-                todo: todoList
+                todo: todoList,
+                u_id: todoListCounter + 1
             })
         chrome.storage.sync.get(
             {
                 todo: [],
+                u_id: 0
             },
-            ({ todo }) => {
+            ({ todo, u_id }) => {
                 console.log(todo)
+                console.log(u_id)
             }
         )
     }
@@ -147,17 +153,18 @@ function App() {
     }
 
     window.onload = function () {
-        console.log("LOAD")
         chrome.storage.sync.get(
             {
-                page: "error",
+                page: 0,
                 info: [],
-                todo: []
+                todo: [],
+                u_id: 0
             },
-            ({ page, info, todo }) => {
+            ({ page, info, todo, u_id }) => {
                 setPage(parseInt(page))
                 setInfo(info)
                 setTodoList(todo)
+                setTodoListCounter(parseInt(u_id))
             }
         );
     }
@@ -173,7 +180,7 @@ function App() {
         console.log(todoList)
         for (const [_, data] of todoList.entries()) {
             current_todo.push(
-                <TodoSlot task={data.task} priority={data.priority} />
+                <TodoSlot task={data.task} priority={data.priority} u_id={data.u_id} />
             )
         }
         content = (

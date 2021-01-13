@@ -6,13 +6,15 @@ chrome.runtime.onInstalled.addListener(function () {
         {
             page: 0,
             info: [],
-            todo: []
+            todo: [],
+            u_id: 0
         },
         ({ page, info, todo }) => {
             chrome.storage.sync.set({
                 page: page,
                 info: info,
-                todo: todo
+                todo: todo,
+                u_id: u_id
             });
         }
     );
