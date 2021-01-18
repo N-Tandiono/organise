@@ -58,13 +58,29 @@ function App() {
     }
 
     function TimetableSlot(props) {
+        let day = "Monday";
+        if (props.priority === 7) {
+            day = "Monday"
+        } else if (props.priority === 6) {
+            day = "Tuesday"
+        } else if (props.priority === 5) {
+            day = "Wednesday"
+        } else if (props.priority === 4) {
+            day = "Thursday"
+        } else if (props.priority === 3) {
+            day = "Friday"
+        } else if (props.priority === 2) {
+            day = "Saturday"
+        } else if (props.priority === 1) {
+            day = "Sunday"
+        }
         return (
             <>
                 <div className="timetableSlot">
                     <table>
                         <tr>
                             <td className="taskTable">{props.task}</td>
-                            <td className="dayTable">{props.day}</td>
+                            <td className="dayTable">{day}</td>
                             <td>{props.time}<button className="deleteEntry" onClick={() => closeTimetableSlot(props.task, props.time)}> &#10005; </button ></td>
                         </tr>
                     </table>
@@ -98,7 +114,8 @@ function App() {
     }
 
     const addDataTimetable = data => {
-        info.push({ task: data.task, day: data.day, time: data.time });
+        info.push({ task: data.task, priority: data.priority, time: data.time });
+        info.sort(compare)
         chrome.storage.sync.set(
             {
                 info: info
@@ -222,7 +239,7 @@ function App() {
     } else if (page === TIMETABLE) {
         for (const [_, data] of info.entries()) {
             current_timetable.push(
-                <TimetableSlot task={data.task} day={data.day} time={data.time} />
+                <TimetableSlot task={data.task} priority={data.priority} time={data.time} />
             )
         }
         content = (
@@ -241,7 +258,15 @@ function App() {
                                     <input ref={register} name="task" />
                                     <br />
                                     <label>Day&nbsp;&nbsp;&nbsp;</label>
-                                    <input ref={register} name="day" />
+                                    <select name="priority" ref={register}>
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                        <option value="7">Sunday</option>
+                                    </select>
                                     <br />
                                     <label>Time&nbsp;</label>
                                     <input ref={register} name="time" />
