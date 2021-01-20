@@ -4,7 +4,7 @@
     "manifest_version": 2,
     "description": "",
     "icons": {
-        "512": "logo512.png"
+        "512": "logo.png"
     },
     "background": {
         "scripts": [
@@ -13,7 +13,7 @@
         "persistent": false
     },
     "browser_action": {
-        "default_icon": "logo512.png",
+        "default_icon": "logo.png",
         "default_popup": "popup.html"
     },
     "permissions": [
